@@ -1,3 +1,5 @@
+#!/usr/bin/python3
+
 import pandas as pd
 import matplotlib.pyplot as plt
 import matplotlib
@@ -11,20 +13,21 @@ matplotlib.style.use('ggplot')
 # It's located at 'Datasets/wheat.data'
 # 
 # .. your code here ..
-
+df = pd.read_csv('Datasets/wheat.data')
 
 #
 # TODO: Create a 2d scatter plot that graphs the
 # area and perimeter features
 # 
 # .. your code here ..
-
+df.plot.scatter(x='area', y='perimeter')
 
 #
 # TODO: Create a 2d scatter plot that graphs the
 # groove and asymmetry features
 # 
 # .. your code here ..
+df.plot.scatter(x='groove', y='asymmetry', marker='o')
 
 
 #
@@ -32,6 +35,7 @@ matplotlib.style.use('ggplot')
 # compactness and width features
 # 
 # .. your code here ..
+df.plot.scatter(x='compactness', y='width', marker='^')
 
 
 
