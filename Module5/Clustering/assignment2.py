@@ -50,7 +50,7 @@ in_numbers = list(set(df.In.tolist()))
 # "In" feature (user phone number) is equal to the first number on your unique list above
 #
 # .. your code here ..
-  user1 = df[df.In == in_numbers[i]]
+  #user1 = df[df.In == in_numbers[i]]
 user1 = df[df.In == in_numbers[0]]
 #print(user1.shape)
 #print(user1.head())
