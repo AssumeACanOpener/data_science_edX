@@ -10,7 +10,8 @@ matplotlib.style.use('ggplot')
 
 
 # Do * NOT * alter this line, until instructed!
-scaleFeatures = False
+#scaleFeatures = False
+scaleFeatures = True
 
 
 # TODO: Load up the dataset and remove any and all
@@ -18,8 +19,8 @@ scaleFeatures = False
 # by now ;-)
 #
 # .. your code here ..
-
-
+df = pd.read_csv('Datasets/kidney_disease.csv')
+df = df.dropna()
 
 # Create some color coded labels; the actual label feature
 # will be removed prior to executing PCA, since it's unsupervised.
@@ -31,7 +32,7 @@ labels = ['red' if i=='ckd' else 'green' for i in df.classification]
 #       ['bgr','wc','rc']
 #
 # .. your code here ..
-
+df = df.loc[:, ['bgr', 'wc', 'rc']]
 
 
 # TODO: Print out and check your dataframe's dtypes. You'll probably
@@ -46,8 +47,11 @@ labels = ['red' if i=='ckd' else 'green' for i in df.classification]
 # an appropriate command to coerce these features into the right type.
 #
 # .. your code here ..
-
-
+df.wc = pd.to_numeric(df.wc, errors='coerce')
+df.rc = pd.to_numeric(df.rc, errors='coerce')
+#print(df.dtypes)
+#print(df.head(4))
+#exit()
 
 # TODO: PCA Operates based on variance. The variable with the greatest
 # variance will dominate. Go ahead and peek into your data using a
@@ -59,8 +63,9 @@ labels = ['red' if i=='ckd' else 'green' for i in df.classification]
 # you probably didn't complete the previous step properly.
 #
 # .. your code here ..
-
-
+print(df.var())
+print(df.describe())
+#exit()
 
 # TODO: This method assumes your dataframe is called df. If it isn't,
 # make the appropriate changes. Don't alter the code in scaleFeatures()
@@ -76,7 +81,10 @@ if scaleFeatures: df = helper.scaleFeatures(df)
 # and that the results of your transformation are saved in 'T'.
 #
 # .. your code here ..
-
+from sklearn.decomposition import PCA
+pca = PCA(n_components = 2)
+pca.fit(df)
+T = pca.transform(df)
 
 # Plot the transformed data as a scatter plot. Recall that transforming
 # the data will result in a NumPy NDArray. You can either use MatPlotLib
