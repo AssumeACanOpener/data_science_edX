@@ -4,6 +4,7 @@ import pandas as pd
 
 import matplotlib.pyplot as plt
 import matplotlib
+from sklearn.cluster import KMeans
 
 matplotlib.style.use('ggplot') # Look Pretty
 
@@ -25,7 +26,12 @@ def showandtell(title=None):
 # Convert the date using pd.to_datetime, and the time using pd.to_timedelta
 #
 # .. your code here ..
-
+df = pd.read_csv('Datasets/CDR.csv')
+#print(df.head())
+df.CallDate = pd.to_datetime(df.CallDate, errors='coerce')
+df.CallTime = pd.to_timedelta(df.CallTime, errors='coerce')
+#print(df.dtypes)
+#exit()
 
 #
 # TODO: Get a distinct list of "In" phone numbers (users) and store the values in a
@@ -33,18 +39,25 @@ def showandtell(title=None):
 # Hint: https://docs.scipy.org/doc/numpy/reference/generated/numpy.ndarray.tolist.html
 #
 # .. your code here ..
+in_numbers = list(set(df.In.tolist()))
 
 
-# 
+# find the location of every number
+#for i in range(len(in_numbers)):
+
+
 # TODO: Create a slice called user1 that filters to only include dataset records where the
 # "In" feature (user phone number) is equal to the first number on your unique list above
 #
 # .. your code here ..
-
+  user1 = df[df.In == in_numbers[i]]
+user1 = df[df.In == in_numbers[0]]
+#print(user1.shape)
+#print(user1.head())
 
 # INFO: Plot all the call locations
 user1.plot.scatter(x='TowerLon', y='TowerLat', c='gray', alpha=0.1, title='Call Locations')
-showandtell()  # Comment this line out when you're ready to proceed
+#showandtell()  # Comment this line out when you're ready to proceed
 
 
 #
@@ -70,7 +83,7 @@ showandtell()  # Comment this line out when you're ready to proceed
 # only examining records that came in on weekends (sat/sun).
 #
 # .. your code here ..
-
+user1 = user1[(user1.DOW == 'Sat') | (user1.DOW == 'Sun')]
 
 #
 # TODO: Further filter it down for calls that are came in either before 6AM OR after 10pm (22:00:00).
@@ -81,6 +94,7 @@ showandtell()  # Comment this line out when you're ready to proceed
 # slice, print out its length:
 #
 # .. your code here ..
+user1 = user1[(user1.CallTime < '06:00:00') | (user1.CallTime > '22:00:00')]
 
 
 #
@@ -97,7 +111,7 @@ fig = plt.figure()
 ax = fig.add_subplot(111)
 ax.scatter(user1.TowerLon,user1.TowerLat, c='g', marker='o', alpha=0.2)
 ax.set_title('Weekend Calls (<6am or >10p)')
-showandtell()  # TODO: Comment this line out when you're ready to proceed
+#showandtell()  # TODO: Comment this line out when you're ready to proceed
 
 
 
@@ -116,8 +130,19 @@ showandtell()  # TODO: Comment this line out when you're ready to proceed
 # Hint: Make sure you graph the CORRECT coordinates. This is part of your domain expertise.
 #
 # .. your code here ..
-
-
+locations = user1.loc[:, ['TowerLon', 'TowerLat']]
+#print(locations.shape)
+#print(locations.head())
+#exit()
+kmeans_model = KMeans(n_clusters=1)
+kmeans_model.fit(locations)
+centroids = kmeans_model.cluster_centers_
+ax.scatter(centroids[:,0], centroids[:,1], marker='x', c='red', alpha=0.5, linewidths=3, s=169)
+  #print('********************') 
+  #print('User:', i)
+  #print('Number:', in_numbers[i])
+  #print(centroids)
+  #print()
 showandtell()  # TODO: Comment this line out when you're ready to proceed
 
 
@@ -127,4 +152,3 @@ showandtell()  # TODO: Comment this line out when you're ready to proceed
 # locations. You might want to use a for-loop, unless you enjoy typing.
 #
 # .. your code here ..
-
