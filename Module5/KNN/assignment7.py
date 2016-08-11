@@ -1,12 +1,20 @@
 #!/usr/bin/python3
 
+import pandas as pd
+from sklearn import preprocessing
+from sklearn.decomposition import PCA
+from sklearn import manifold
+from sklearn.cross_validation import train_test_split
+from sklearn.neighbors import KNeighborsClassifier
+
 # If you'd like to try this lab with PCA instead of Isomap,
 # as the dimensionality reduction technique:
-Test_PCA = True
+#Test_PCA = True
+Test_PCA = False
 
 
 def plotDecisionBoundary(model, X, y):
-  print "Plotting..."
+  print("Plotting...")
   import matplotlib.pyplot as plt
   import matplotlib
   matplotlib.style.use('ggplot') # Look Pretty
@@ -63,7 +71,8 @@ def plotDecisionBoundary(model, X, y):
 # Be sure to verify the rows line up by looking at the file in a text editor.
 #
 # .. your code here ..
-
+X = pd.read_csv('Datasets/breast-cancer-wisconsin.data', names=['sample', 'thickness', 'size', 'shape', 'adhesion', 'epithelial', 'nuclei', 'chromatin', 'nucleoli', 'mitoses', 'status'])
+#print(X.head())
 
 # 
 # TODO: Copy out the status column into a slice, then drop it from the main
@@ -71,14 +80,21 @@ def plotDecisionBoundary(model, X, y):
 # us with any machine learning power.
 #
 # .. your code here ..
-
+y = X.status
+X = X.drop(['status', 'sample'], axis=1)
+X.nuclei = pd.to_numeric(X.nuclei, errors='coerce')
+#print(X.head())
+#print(y.head())
+#print(X.dtypes)
+#print(y.dtypes)
+#exit()
 
 #
 # TODO: With the labels safely extracted from the dataset, replace any nan values
 # with the mean feature / column value
 #
 # .. your code here ..
-
+X = X.fillna(X.mean())
 
 #
 # TODO: Experiment with the basic SKLearn preprocessing scalers. We know that
@@ -87,36 +103,40 @@ def plotDecisionBoundary(model, X, y):
 # dataset, post transformation.
 #
 # .. your code here ..
-
+X = preprocessing.StandardScaler().fit_transform(X)
+#X = preprocessing.MinMaxScaler().fit_transform(X)
+#X = preprocessing.normalize(X)
+#X = preprocessing.scale(X)
 
 #
 # PCA and Isomap are your new best friends
 model = None
 if Test_PCA:
-  print "Computing 2D Principle Components"
+  print("Computing 2D Principle Components")
   #
   # TODO: Implement PCA here. save your model into the variable 'model'.
   # You should reduce down to two dimensions.
   #
   # .. your code here ..
-  
+  model = PCA(n_components=2)
 
 else:
-  print "Computing 2D Isomap Manifold"
+  print("Computing 2D Isomap Manifold")
   #
   # TODO: Implement Isomap here. save your model into the variable 'model'
   # Experiment with K values from 5-10.
   # You should reduce down to two dimensions.
   #
   # .. your code here ..
-
-
+  model = manifold.Isomap(n_neighbors=8, n_components=2)
 
 #
 # TODO: Train your model against X and transform it. You can save the results
 # right back into X itself.
 #
 # .. your code here ..
+model.fit(X)
+X = model.transform(X)
 
 
 
@@ -126,7 +146,7 @@ else:
 # the test_size at 0.33 (33%).
 #
 # .. your code here ..
-
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=.33)
 
 
 
@@ -139,6 +159,8 @@ else:
 # parameter affects the results.
 #
 # .. your code here ..
+knn = KNeighborsClassifier(n_neighbors=13, weights='distance')
+knn.fit(X_train, y_train)
 
 #
 # INFO: Be sure to always keep the domain of the problem in mind! It's
@@ -156,8 +178,6 @@ else:
 # TODO: Calculate + Print the accuracy of the testing set
 #
 # .. your code here ..
+print(knn.score(X_test, y_test))
 
-
-plotDecisionBoundary(model, data_test, label_test)
-
-
+plotDecisionBoundary(knn, X_test, y_test)

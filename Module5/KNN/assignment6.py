@@ -16,7 +16,7 @@ Test_PCA = False
 matplotlib.style.use('ggplot') # Look Pretty
 
 
-def Plot2DBoundary(DTrain, LTrain, DTest, LTest):
+def Plot2DBoundary(DTrain, LTrain, DTest, LTest, model):
   # The dots are training samples (img not drawn), and the pics are testing samples (images drawn)
   # Play around with the K values. This is very controlled dataset so it should be able to get perfect classification on testing entries
   # Play with the K for isomap, play with the K for neighbors. 
@@ -102,7 +102,10 @@ def Plot2DBoundary(DTrain, LTrain, DTest, LTest):
 # instead of sideways. This was demonstrated in the M4/A4 code:
 #
 # .. your code here ..
-
+mat = scipy.io.loadmat('../../Module4/Isomap/Datasets/face_data.mat')
+df = pd.DataFrame(mat['images']).T
+#print(df.head())
+#exit()
 
 #
 # TODO: Load up your face_labels dataset. It only has a single column, and
@@ -113,8 +116,11 @@ def Plot2DBoundary(DTrain, LTrain, DTest, LTest):
 # loaded it correctly
 #
 # .. your code here ..
-
-
+face_labels = pd.read_csv('Datasets/face_labels.csv', names=['label'])
+face_labels = face_labels.label.copy()
+#print(face_labels.head())
+#print(type(face_labels))
+#exit()
 
 if Test_PCA:
   # INFO: PCA is used *before* KNeighbors to simplify your high dimensionality
@@ -132,7 +138,7 @@ if Test_PCA:
   # variable (e.g. "X" instead of df)
   #
   # .. your code here ..
-
+  pass
 else:
   # INFO: Isomap is used *before* KNeighbors to simplify your high dimensionality
   # image samples down to just 2 components! A lot of information has been is
@@ -151,8 +157,10 @@ else:
   # variable (e.g. "X" instead of df)
   #
   # .. your code here ..
-
-
+  from sklearn import manifold
+  iso = manifold.Isomap(n_neighbors=8, n_components=2)
+  iso.fit(df)
+  X = iso.transform(df)
 
 #
 # TODO: Do train_test_split. Use the same code as on the EdX platform in the
@@ -164,9 +172,8 @@ else:
 # rather than as points:
 #
 # .. your code here ..
-
-
-
+from sklearn.cross_validation import train_test_split
+data_train, data_test, label_train, label_test = train_test_split(X, face_labels, test_size=0.1)
 
 #
 # TODO: Implement KNeighborsClassifier here. You can use any K value from 1
@@ -176,6 +183,9 @@ else:
 # labels that those 2d representations should be.
 #
 # .. your code here ..
+from sklearn.neighbors import KNeighborsClassifier
+knn = KNeighborsClassifier(n_neighbors=5)
+knn.fit(data_train, label_train)
 
 # NOTE: K-NEIGHBORS DOES NOT CARE WHAT THE ANSWERS SHOULD BE! In fact, it
 # just tosses that information away. All KNeighbors cares about storing is
@@ -189,11 +199,13 @@ else:
 # label_test).
 #
 # .. your code here ..
-
+print(knn.score(data_test, label_test))
 
 
 # Chart the combined decision boundary, the training data as 2D plots, and
 # the testing data as small images so we can visually validate performance.
-Plot2DBoundary(data_train, label_train, data_test, label_test)
 
+num_images, num_pixels = df.shape
+num_pixels = int(math.sqrt(num_pixels))
 
+Plot2DBoundary(data_train, label_train, data_test, label_test, knn)
