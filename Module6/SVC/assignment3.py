@@ -6,7 +6,7 @@ from sklearn.cross_validation import train_test_split
 from sklearn.svm import SVC
 from sklearn import preprocessing
 
-X = pd.read_csv('Datasets/parkinsons2.data')
+X = pd.read_csv('Datasets/parkinsons.data')
 X = X.drop('name', axis=1)
 y = pd.DataFrame(X.status)
 X = X.drop('status', axis=1)
